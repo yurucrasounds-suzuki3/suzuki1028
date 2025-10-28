@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>すずきIIIクイズ｜PLAY MODE</title>
+  <!--
+    ✅ 学習メモ（このファイルの目的）
+    - 自己紹介ページ(index.html)はシック。こちらは「遊び心のあるゲーム風」デザイン。
+    - 1ファイル完結（画像・ライブラリなし）で動く。コピペで使える。
+    - 初心者にも読みやすいように、要所にコメントを入れてあります。
+  -->
+  <style>
+    /* ============ 1) ベースと背景（遊び心の第一歩は“動く背景”） ============ */
+    :root{
+      --ink:#e5e7eb;        /* 文字色(薄い白) */
+      --muted:#94a3b8;      /* サブ文字 */
+      --card:#0b1220cc;     /* カード(半透明) */
+      --edge:#1f2937;       /* 枠線 */
+      --accent:#22d3ee;     /* アンサー選択時のアクセント(シアン) */
+      --brand:#a78bfa;      /* ブランド色(パープル) */
+      --ok:#22c55e;         /* 正解色(グリーン) */
+      --ng:#ef4444;         /* 不正解色(レッド) */
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;}
+    body{
+      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans JP", sans-serif;
+      color:var(--ink); overflow:hidden; /* 背景アニメを活かすため縦スクロール無しに */
+      background: radial-gradient(1200px 600px at 50% -200px, #111827 0%, #020617 60%);
+    }
+    /* 背景の“ゆらぐグラデ”用の円形ブロブ（擬似要素で2枚） */
+    .bg{
+      position:fixed; inset:-20vmax; pointer-events:none; filter:blur(40px) saturate(160%);
+    }
+    .bg::before, .bg::after{
+      content:""; position:absolute; width:60vmax; height:60vmax; border-radius:50%;
+      background: radial-gradient(circle, rgba(34,211,238,.8), transparent 60%);
+      animation: float1 18s ease-in-out infinite;
+    }
+    .bg::after{
+      left:40%; top:20%; width:50vmax; height:50vmax;
+      background: radial-gradient(circle, rgba(167,139,250,.8), transparent 60%);
+      animation: float2 22s ease-in-out infinite;
+    }
+    @keyframes float1{ 0%,100%{transform:translate(-10%, -5%)} 50%{transform:translate(10%, 10%)} }
+    @keyframes float2{ 0%,100%{transform:translate(5%, -8%)} 50%{transform:translate(-8%, 6%)} }
+
+    /* ============ 2) レイアウト（中央にゲームカード） ============ */
+    .wrap{position:relative; height:100%; display:grid; place-items:center; padding:20px;}
+    .card{
+      width:min(720px, 96vw); min-height:480px; background:var(--card); border:1px solid var(--edge);
+      border-radius:24px; box-shadow:0 20px 60px rgba(0,0,0,.55); backdrop-filter: blur(10px);
+      display:flex; flex-direction:column; padding:20px; overflow:hidden;
+    }
+    header{display:flex; align-items:center; justify-content:space-between; gap:12px;}
+    .title{font-weight:900; letter-spacing:.04em;}
+    .badge{font-size:12px; color:var(--muted); border:1px solid var(--edge); padding:6px 10px; border-radius:999px;}
+
+    /* 進捗バー */
+    .progress{height:10px; background:#0b1220; border:1px solid var(--edge); border-radius:999px; overflow:hidden;}
+    .bar{height:100%; width:0%; background:linear-gradient(90deg, var(--brand), var(--accent)); transition:width .35s ease;}
+
+    /* 質問と回答 */
+    .stage{flex:1; display:grid; grid-template-rows:auto 1fr auto; gap:16px;}
+    .question{font-size:clamp(18px,2.6vw,24px); font-weight:900;}
+    .answers{display:grid; gap:12px; align-content:start;}
+    .ans{position:relative; text-align:left; padding:14px 16px; border-radius:14px; border:1px solid var(--edge);
+      background:#0b1220; color:var(--ink); cursor:pointer; font-weight:700;}
+    .ans:hover{outline:2px solid var(--accent)}
+    .ans.correct{border-color:var(--ok); box-shadow:0 0 0 2px rgba(34,197,94,.2) inset}
+    .ans.wrong{border-color:var(--ng); box-shadow:0 0 0 2px rgba(239,68,68,.2) inset}
+
+    .controls{display:flex; gap:10px; justify-content:flex-end}
+    .btn{cursor:pointer; border:none; padding:12px 16px; border-radius:12px; font-weight:900;}
+    .btn-ghost{background:#0b1220; color:var(--ink); border:1px solid var(--edge)}
+    .btn-primary{background:linear-gradient(90deg, var(--brand), var(--accent)); color:#001018}
+
+    /* 結果画面 */
+    .center{height:100%; display:grid; place-items:center}
+    .result{
+      text-align:center; padding:24px; border:1px solid var(--edge); background:#0b1220; border-radius:20px;
+      max-width:520px;
+    }
+    .score{font-size:42px; font-weight:900; letter-spacing:.02em;}
+    .muted{color:var(--muted); font-size:13px}
+
+    /* 下部ナビ（ホームリンク） */
+    .foot{
+      display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:10px;
+      color:var(--muted); font-size:12px;
+    }
+    .link{color:var(--ink); text-decoration:none; border-bottom:1px dashed var(--accent)}
+
+    /* 小さめ画面の最適化 */
+    @media (max-width:540px){
+      .answers{grid-template-columns:1fr}
+    }
+    @media (min-width:541px){
+      .answers{grid-template-columns:1fr 1fr}
+    }
+  </style>
+</head>
+<body>
+  <!-- ゆらぐ背景ブロブ -->
+  <div class="bg"></div>
+
+  <div class="wrap">
+    <div class="card" role="region" aria-label="クイズカード">
+      <header>
+        <div class="title">PLAY MODE</div>
+        <div class="badge">自己紹介ベースの4択クイズ</div>
+      </header>
+
+      <div style="margin:10px 0 6px">進捗</div>
+      <div class="progress" aria-label="進捗バー"><div class="bar" id="bar"></div></div>
+
+      <!-- ===== メインステージ（質問 / 回答 / ボタン） ===== -->
+      <section id="stage" class="stage" aria-live="polite">
+        <div class="question" id="q"></div>
+        <div class="answers" id="answers"></div>
+        <div class="controls">
+          <button class="btn btn-ghost" id="prev">戻る</button>
+          <button class="btn btn-primary" id="next">次へ</button>
+        </div>
+      </section>
+
+      <!-- ===== 結果ビュー（最初は非表示） ===== -->
+      <section id="resultView" class="center" style="display:none">
+        <div class="result">
+          <div class="muted" style="margin-bottom:6px">結果</div>
+          <div class="score" id="score"></div>
+          <p class="muted" id="comment" style="margin:6px 0 14px"></p>
+          <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+            <button class="btn btn-primary" id="retry">もう一度</button>
+            <a class="btn btn-ghost" href="index.html">自己紹介へ戻る</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- フッター的ナビ情報 -->
+      <div class="foot">
+        <span>矢印キーでも操作できます ← / →</span>
+        <a class="link" href="index.html">index.html（プロフィール）</a>
+      </div>
+    </div>
+
+    <!-- コンフェッティ用キャンバス（正解/結果で花吹雪） -->
+    <canvas id="fx" width="0" height="0" style="position:fixed; inset:0; pointer-events:none;"></canvas>
+  </div>
+
+<script>
+  // ========== 0) 自己紹介データ（index.htmlと合わせる） ==========
+  const profile = {
+    name: "すずきIII",
+    from: "北海道",
+    food: "ラーメン",
+    hobbies: "キャンプ、ゴルフ",
+    family: "妻、4歳息子",
+  };
+
+  // ========== 1) 問題セット（遊び心：毎回シャッフル） ==========
+  function makeQuestions(p){
+    const qs = [];
+    qs.push({ q: "出身地はどこ？", a: p.from, c: [p.from, "東京", "沖縄", "大阪"] });
+    qs.push({ q: "好きな食べ物は？", a: p.food, c: [p.food, "寿司", "カレー", "ハンバーガー"] });
+    qs.push({ q: "趣味はどれ？", a: p.hobbies, c: [p.hobbies, "読書、将棋", "映画鑑賞、音楽", "ランニング、料理"] });
+    qs.push({ q: "家族構成は？", a: p.family, c: [p.family, "独身", "妻、2歳娘", "夫、猫2匹"] });
+    qs.push({ q: "私の名前は？", a: p.name, c: [p.name, "鈴木一郎", "田中太郎", "すずきJr."] });
+    return shuffle(qs).map(it=> ({...it, c: shuffle(it.c)}));
+  }
+  const questions = makeQuestions(profile);
+
+  // ========== 2) UIと状態 ==========
+  const dom = {
+    q: document.getElementById('q'),
+    answers: document.getElementById('answers'),
+    bar: document.getElementById('bar'),
+    stage: document.getElementById('stage'),
+    result: document.getElementById('resultView'),
+    score: document.getElementById('score'),
+    comment: document.getElementById('comment'),
+    prev: document.getElementById('prev'),
+    next: document.getElementById('next'),
+    retry: document.getElementById('retry'),
+  };
+
+  let step = 0;                 // 何問目か
+  const selected = new Map();   // step -> choice text
+
+  function render(){
+    const total = questions.length;
+    if (step>=total) return showResult();
+
+    const { q, c, a } = questions[step];
+    dom.q.textContent = `Q${step+1}. ${q}`;
+    dom.answers.innerHTML = '';
+    c.forEach(choice => {
+      const b = document.createElement('button');
+      b.className = 'ans'; b.textContent = choice;
+      b.addEventListener('click', () => {
+        selected.set(step, choice);
+        // クリック時の見た目（正誤フィードバック）
+        [...dom.answers.children].forEach(el => el.classList.remove('correct','wrong'));
+        b.classList.add(choice === a ? 'correct' : 'wrong');
+        if(choice === a) burstConfetti();
+      });
+      dom.answers.appendChild(b);
+    });
+    dom.bar.style.width = `${(step)/total*100}%`;
+    dom.prev.disabled = (step===0);
+  }
+
+  function showResult(){
+    const total = questions.length; let ok = 0;
+    questions.forEach((q, i) => { if (selected.get(i) === q.a) ok++; });
+    dom.stage.style.display = 'none'; dom.result.style.display = 'grid';
+    dom.bar.style.width = '100%';
+    dom.score.textContent = `${ok} / ${total}`;
+    dom.comment.textContent = ok===total ? 'パーフェクト！センス抜群✨' : (ok>=Math.ceil(total*0.6) ? 'いい感じ！もう一歩で満点👏' : 'ナイスチャレンジ！もう一回いこう💪');
+    bigConfetti();
+  }
+
+  dom.next.addEventListener('click', () => { if(step<questions.length){ step++; render(); } if(step===questions.length) showResult(); });
+  dom.prev.addEventListener('click', () => { if(step>0){ step--; render(); } });
+  dom.retry && dom.retry.addEventListener('click', () => { step=0; selected.clear();
+    // 新しい並びで再生成して飽きないように
+    const fresh = makeQuestions(profile); questions.splice(0, questions.length, ...fresh);
+    dom.result.style.display = 'none'; dom.stage.style.display = 'grid'; render(); });
+
+  // キーボード操作（← →）
+  window.addEventListener('keydown', (e)=>{
+    if(e.key==='ArrowRight') dom.next.click();
+    if(e.key==='ArrowLeft') dom.prev.click();
+  });
+
+  // 初期描画
+  render();
+
+  // ========== 3) 小さな演出：花吹雪エフェクト（Canvas） ==========
+  const fx = document.getElementById('fx');
+  const ctx = fx.getContext('2d');
+  let W=0,H=0; const pieces=[]; let tick=0; const colors=['#22d3ee','#a78bfa','#22c55e','#facc15','#f472b6'];
+  function resize(){ W = fx.width = innerWidth; H = fx.height = innerHeight; }
+  addEventListener('resize', resize); resize();
+
+  function addPieces(n, big=false){
+    for(let i=0;i<n;i++){
+      pieces.push({
+        x: Math.random()*W,
+        y: big? H*0.3 : H*0.4,
+        vx: (Math.random()-.5)*3,
+        vy: -Math.random()* (big? 10:6) - (big? 8:4),
+        r: Math.random()* (big? 10:5) + (big? 6:3),
+        rot: Math.random()*Math.PI,
+        vr: (Math.random()-.5)*0.2,
+        color: colors[(Math.random()*colors.length)|0],
+        g: 0.25
+      });
+    }
+  }
+  function burstConfetti(){ addPieces(20,false); }
+  function bigConfetti(){ addPieces(180,true); }
+
+  (function loop(){ requestAnimationFrame(loop); ctx.clearRect(0,0,W,H); tick++;
+    for(let i=pieces.length-1;i>=0;i--){ const p=pieces[i];
+      p.vy += p.g; p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      ctx.fillStyle=p.color; ctx.beginPath(); ctx.moveTo(-p.r,0); ctx.lineTo(0,-p.r*0.6); ctx.lineTo(p.r,0); ctx.lineTo(0,p.r*0.6); ctx.closePath(); ctx.fill(); ctx.restore();
+      if(p.y>H+50||p.x<-50||p.x>W+50) pieces.splice(i,1);
+    }
+  })();
+
+  // ========== 4) 便利関数 ==========
+  function shuffle(arr){ return [...arr].sort(()=>Math.random()-.5); }
+</script>
+</body>
+</html>
