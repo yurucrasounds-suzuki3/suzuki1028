@@ -1,137 +1,144 @@
 <!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>すずきIII | Portfolio</title>
+  <!-- 学習メモ: 画像だけで“高級感”を出す。外部JSなし/1ファイル完結。Unsplashの著名フリー写真を使い、後でURL差し替え可。 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Noto+Sans+JP:wght@400;700&display=swap');
-
-    body {
-      margin: 0;
-      background: radial-gradient(circle at top, #0f172a 0%, #020617 70%);
-      color: #f1f5f9;
-      font-family: 'Poppins', 'Noto Sans JP', sans-serif;
-      display: flex; flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      overflow-x: hidden;
+    :root{
+      --ink:#0b0f19;         /* 文字(濃い) */
+      --ink-inv:#e6e9ef;     /* 文字(淡い) */
+      --muted:#93a1b3;       /* サブ文字 */
+      --edge:rgba(255,255,255,.15);
+      --card:rgba(5, 10, 20, .55); /* ガラスカード */
+      --brand:#111827;       /* ベース濃紺 */
+      --accent:#38bdf8;      /* アクセント(水色) */
+      --accent2:#22c55e;     /* アクセント(緑) */
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:'Poppins','Noto Sans JP',system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color:var(--ink-inv);
+      background: #0b1220;
     }
 
-    header {
-      width: 100%; text-align: center;
-      padding: 60px 20px 20px;
+    /* ===== 1) ヒーローセクション ===== */
+    .hero{
+      position:relative; min-height:86vh; display:grid; place-items:center; overflow:hidden;
+      background:#000;
+    }
+    /* ヒーロー写真1: かっこいいポートレート */
+    .hero::before{
+      content:""; position:absolute; inset:0;
+      background-image:url('https://images.unsplash.com/photo-1519345182560-3f2917c472ef?q=80&w=2000&auto=format&fit=crop');
+      background-size:cover; background-position:center;
+      filter:contrast(1.05) saturate(1.05) brightness(.85);
+      transform:scale(1.02);
+    }
+    /* ヒーロー写真2: 都市の街並み(ブレンド) */
+    .hero::after{
+      content:""; position:absolute; inset:-10% -10% -20% -10%; pointer-events:none;
+      background-image:url('https://images.unsplash.com/photo-1508057198894-247b23fe5ade?q=80&w=2000&auto=format&fit=crop');
+      background-size:cover; background-position:center; opacity:.40; mix-blend-mode:screen;
+      filter:blur(2px) saturate(1.2);
+      animation: pan 30s linear infinite alternate;
+    }
+    @keyframes pan{ from{transform:translateY(-2%)} to{transform:translateY(2%)} }
+
+    /* 上品な光のグラデーション被せ */
+    .veil{
+      position:absolute; inset:0; background: radial-gradient(1200px 520px at 50% -200px, rgba(56,189,248,.35), transparent 40%),
+                                     radial-gradient(1000px 420px at 80% 120%, rgba(34,197,94,.28), transparent 50%),
+                                     linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.65));
     }
 
-    h1 {
-      font-size: 2.8rem;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      margin: 0;
-      background: linear-gradient(90deg, #38bdf8, #22c55e);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
+    .wrap{ position:relative; z-index:10; padding: 24px; width:min(1080px, 94vw); margin: 0 auto;}
 
-    h2 {
-      font-weight: 400;
-      color: #94a3b8;
-      margin-top: 6px;
-      font-size: 1rem;
+    /* グラスモーフィズムのカード */
+    .glass{
+      backdrop-filter: blur(10px); background: var(--card); border:1px solid var(--edge);
+      border-radius: 24px; padding: 28px; box-shadow: 0 30px 80px rgba(0,0,0,.5);
+      display:grid; grid-template-columns: 1.1fr .9fr; gap: 24px;
     }
+    @media (max-width: 820px){ .glass{ grid-template-columns: 1fr; } }
 
-    .card {
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 24px;
-      padding: 40px;
-      width: 90%;
-      max-width: 600px;
-      text-align: left;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-      animation: fadeIn 1.2s ease;
-    }
+    .lead{ font-size: clamp(28px, 4vw, 42px); font-weight:800; letter-spacing:.02em; line-height:1.15; margin:0 0 8px; }
+    .sub{ color:#cbd5e1; margin: 0 0 14px; }
 
-    @keyframes fadeIn {
-      from {opacity:0; transform: translateY(20px);}
-      to {opacity:1; transform: translateY(0);}
-    }
+    .meta{ display:grid; gap:10px; margin-top:14px; }
+    .kv{ display:grid; grid-template-columns: 120px 1fr; gap: 8px; }
+    .k{ color:#9fb0c5 }
+    .v{ font-weight:700 }
 
-    .profile-item {
-      margin: 12px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      padding-bottom: 8px;
-    }
-    .label {
-      font-size: 0.85rem; color: #94a3b8;
-    }
-    .value {
-      font-size: 1.1rem; font-weight: 600; color: #f8fafc;
-    }
+    .cta{ display:flex; gap:12px; flex-wrap:wrap; margin-top: 18px; }
+    .btn{ cursor:pointer; text-decoration:none; border:none; border-radius: 12px; padding: 12px 18px; font-weight:800; }
+    .btn-primary{ background:linear-gradient(90deg, var(--accent), var(--accent2)); color:#001018; }
+    .btn-ghost{ background: rgba(255,255,255,.06); color:#e5e7eb; border:1px solid var(--edge); }
+    .btn:hover{ transform: translateY(-2px); box-shadow: 0 8px 24px rgba(56,189,248,.35); }
 
-    .btn {
-      display: inline-block;
-      margin-top: 30px;
-      padding: 14px 28px;
-      background: linear-gradient(90deg, #38bdf8, #22c55e);
-      color: #0f172a;
-      font-weight: 700;
-      text-decoration: none;
-      border-radius: 12px;
-      transition: all 0.3s ease;
+    /* 右側: フレーム入りサブ写真（街スナップ） */
+    .frame{
+      position:relative; border-radius: 18px; overflow:hidden; aspect-ratio: 4/5; border:1px solid var(--edge);
+      box-shadow: 0 20px 60px rgba(0,0,0,.55);
     }
+    .frame img{ width:100%; height:100%; object-fit:cover; display:block; filter:contrast(1.05) saturate(1.05); }
+    .credit{ position:absolute; right:12px; bottom:10px; font-size:12px; color:#cbd5e1; background: rgba(0,0,0,.35); padding: 6px 10px; border-radius: 999px; border:1px solid var(--edge); }
 
-    .btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 20px rgba(56,189,248,0.4);
-    }
+    /* 下段: シンプルなギャラリーライン（街並みフォト×3） */
+    .gallery{ display:grid; grid-template-columns: repeat(3, 1fr); gap:14px; margin-top: 18px; }
+    .ph{ position:relative; border-radius:14px; overflow:hidden; border:1px solid var(--edge); aspect-ratio: 3/2; }
+    .ph img{ width:100%; height:100%; object-fit:cover; display:block; }
 
-    footer {
-      margin-top: auto;
-      padding: 30px;
-      color: #64748b;
-      font-size: 0.8rem;
-      text-align: center;
-    }
-
-    @media (max-width: 600px) {
-      h1 { font-size: 2rem; }
-      .card { padding: 24px; }
-    }
+    footer{ color:#98a7bb; text-align:center; padding: 28px 16px; }
   </style>
 </head>
 <body>
-  <header>
-    <h1>すずきIII</h1>
-    <h2>Hokkaido / Developer Journey</h2>
-  </header>
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="veil"></div>
+    <div class="wrap">
+      <div class="glass">
+        <!-- 左: テキスト -->
+        <div>
+          <h1 id="hero-title" class="lead">すずきIII / Portfolio</h1>
+          <p class="sub">Hokkaido → Coding Journey. ミニマルに、上品に、そして確実に。</p>
+          <div class="meta">
+            <div class="kv"><div class="k">出身地</div><div class="v">北海道</div></div>
+            <div class="kv"><div class="k">好きな食べ物</div><div class="v">ラーメン</div></div>
+            <div class="kv"><div class="k">趣味</div><div class="v">キャンプ、ゴルフ</div></div>
+            <div class="kv"><div class="k">家族構成</div><div class="v">妻、4歳息子</div></div>
+          </div>
+          <div class="cta">
+            <a class="btn btn-primary" href="quiz.html">▶ PLAY: クイズで自己紹介</a>
+            <a class="btn btn-ghost" href="#gallery">街スナップを見る</a>
+          </div>
+        </div>
+        <!-- 右: 写真フレーム（ポートレート or ストリート） -->
+        <figure class="frame">
+          <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1200&auto=format&fit=crop" alt="シックなポートレート写真" />
+          <figcaption class="credit">Photo: Unsplash</figcaption>
+        </figure>
+      </div>
 
-  <main>
-    <div class="card">
-      <div class="profile-item">
-        <div class="label">出身地</div>
-        <div class="value">北海道</div>
+      <!-- 下段ギャラリー（軽量なトーン合わせ） -->
+      <div id="gallery" class="gallery" aria-label="街並みギャラリー">
+        <div class="ph"><img src="https://images.unsplash.com/photo-1494526585095-c41746248156?q=80&w=1200&auto=format&fit=crop" alt="ニューヨークの街並み" /></div>
+        <div class="ph"><img src="https://images.unsplash.com/photo-1491553895911-0055eca6402d?q=80&w=1200&auto=format&fit=crop" alt="シティの夜景" /></div>
+        <div class="ph"><img src="https://images.unsplash.com/photo-1543807535-e70a2d9a3024?q=80&w=1200&auto=format&fit=crop" alt="レンガ造りの街角" /></div>
       </div>
-      <div class="profile-item">
-        <div class="label">好きな食べ物</div>
-        <div class="value">ラーメン</div>
-      </div>
-      <div class="profile-item">
-        <div class="label">趣味</div>
-        <div class="value">キャンプ、ゴルフ</div>
-      </div>
-      <div class="profile-item">
-        <div class="label">家族構成</div>
-        <div class="value">妻、4歳息子</div>
-      </div>
-
-      <a href="quiz.html" class="btn">▶ クイズページへ</a>
     </div>
-  </main>
+  </section>
 
   <footer>
-    © <script>document.write(new Date().getFullYear());</script> すずきIII All Rights Reserved.
+    © <span id="y"></span> すずきIII — Photos via Unsplash. Replace URLs freely.
   </footer>
+
+<script>
+  // 学習メモ: 画像は Unsplash のクエリパラメータで軽量化。w=1200 & q=80 など。
+  document.getElementById('y').textContent = new Date().getFullYear();
+</script>
 </body>
 </html>
