@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>すずきIII | Portfolio</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Noto+Sans+JP:wght@400;700&display=swap');
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #0f172a 0%, #020617 70%);
+      color: #f1f5f9;
+      font-family: 'Poppins', 'Noto Sans JP', sans-serif;
+      display: flex; flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    header {
+      width: 100%; text-align: center;
+      padding: 60px 20px 20px;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      margin: 0;
+      background: linear-gradient(90deg, #38bdf8, #22c55e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    h2 {
+      font-weight: 400;
+      color: #94a3b8;
+      margin-top: 6px;
+      font-size: 1rem;
+    }
+
+    .card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 24px;
+      padding: 40px;
+      width: 90%;
+      max-width: 600px;
+      text-align: left;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      animation: fadeIn 1.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from {opacity:0; transform: translateY(20px);}
+      to {opacity:1; transform: translateY(0);}
+    }
+
+    .profile-item {
+      margin: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding-bottom: 8px;
+    }
+    .label {
+      font-size: 0.85rem; color: #94a3b8;
+    }
+    .value {
+      font-size: 1.1rem; font-weight: 600; color: #f8fafc;
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 30px;
+      padding: 14px 28px;
+      background: linear-gradient(90deg, #38bdf8, #22c55e);
+      color: #0f172a;
+      font-weight: 700;
+      text-decoration: none;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(56,189,248,0.4);
+    }
+
+    footer {
+      margin-top: auto;
+      padding: 30px;
+      color: #64748b;
+      font-size: 0.8rem;
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 2rem; }
+      .card { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>すずきIII</h1>
+    <h2>Hokkaido / Developer Journey</h2>
+  </header>
+
+  <main>
+    <div class="card">
+      <div class="profile-item">
+        <div class="label">出身地</div>
+        <div class="value">北海道</div>
+      </div>
+      <div class="profile-item">
+        <div class="label">好きな食べ物</div>
+        <div class="value">ラーメン</div>
+      </div>
+      <div class="profile-item">
+        <div class="label">趣味</div>
+        <div class="value">キャンプ、ゴルフ</div>
+      </div>
+      <div class="profile-item">
+        <div class="label">家族構成</div>
+        <div class="value">妻、4歳息子</div>
+      </div>
+
+      <a href="quiz.html" class="btn">▶ クイズページへ</a>
+    </div>
+  </main>
+
+  <footer>
+    © <script>document.write(new Date().getFullYear());</script> すずきIII All Rights Reserved.
+  </footer>
+</body>
+</html>
